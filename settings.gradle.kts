@@ -1,0 +1,1 @@
+rootProject.name = "com.the_chance.cup-cake-media"
