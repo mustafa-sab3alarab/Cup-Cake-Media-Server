@@ -1,6 +1,8 @@
-package com.the_chance.data
+package com.the_chance.data.utils
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ServerResponse<T>(
     val value: T?,
     val message: String? = null,
