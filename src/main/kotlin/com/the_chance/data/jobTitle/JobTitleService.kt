@@ -3,6 +3,7 @@ package com.the_chance.data.jobTitle
 
 import com.the_chance.data.utils.dbQuery
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
@@ -63,5 +64,9 @@ class JobTitleService(private val database: Database) {
 
        }
    }
+
+    suspend fun deleteJobTitleById(id: Int): Boolean = dbQuery {
+        JobTitleTable.deleteWhere { JobTitleTable.id eq id } > 0
+    }
 
 }

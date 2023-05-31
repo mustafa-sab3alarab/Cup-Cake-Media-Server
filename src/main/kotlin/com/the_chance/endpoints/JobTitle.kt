@@ -3,6 +3,8 @@ package com.the_chance.endpoints
 import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.utils.ServerResponse
+import com.the_chance.utils.isInt
+import com.the_chance.utils.isValidUUID
 import com.the_chance.utils.validationTitle
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -37,6 +39,24 @@ fun Routing.jobTitleRoute(jobTitleService: JobTitleService) {
         jobTitleService.getAllJobTitle().takeIf { it.isNotEmpty() }?.let { posts ->
             call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
         } ?: call.respond(HttpStatusCode.NoContent)
+    }
+
+    delete("/jobTitle/{idJobTitle}") {
+
+        suspend fun deleteJobTitle(idJobTitle: Int) {
+            jobTitleService.deleteJobTitleById(idJobTitle).takeIf { it }?.let { result ->
+                call.respond(HttpStatusCode.OK, ServerResponse.success(result))
+            } ?: call.respond(HttpStatusCode.NotFound, ServerResponse.error("Opps!, this job title not found."))
+        }
+
+        call.parameters["idJobTitle"]?.let { id ->
+            id.takeIf {
+                it.isInt()
+            }?.let { idJobTitle ->
+                deleteJobTitle(idJobTitle.toInt())
+            } ?: call.respond(HttpStatusCode.BadRequest)
+        }
+
     }
 
 }
