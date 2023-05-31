@@ -1,6 +1,7 @@
 package com.the_chance
 
 import com.the_chance.data.getDataBase
+import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.post.PostService
 import com.the_chance.plugins.configureMonitoring
 import com.the_chance.plugins.configureRouting
@@ -18,7 +19,9 @@ fun Application.module() {
     val database = getDataBase()
 
     val postService = PostService(database)
+    val jobTitleService = JobTitleService(database)
+
     configureSerialization()
     configureMonitoring()
-    configureRouting(postService)
+    configureRouting(postService, jobTitleService)
 }
