@@ -33,6 +33,11 @@ fun Routing.jobTitleRoute(jobTitleService: JobTitleService) {
 
     }
 
+    get("/jobTitles") {
+        jobTitleService.getAllJobTitle().takeIf { it.isNotEmpty() }?.let { posts ->
+            call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
+        } ?: call.respond(HttpStatusCode.NoContent)
+    }
 
 }
 

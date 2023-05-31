@@ -31,6 +31,7 @@ class JobTitleService(private val database: Database) {
         }
     }
 
+    //region search
     private suspend fun findJobTitleByTitle(title: String): JobTitle? {
         return searchJobTitle { JobTitleTable.title eq title }
     }
@@ -51,5 +52,16 @@ class JobTitleService(private val database: Database) {
         }
     }
 
+    //endregion
+
+   suspend fun getAllJobTitle():List<JobTitle> = dbQuery {
+       JobTitleTable.selectAll().map {jobTitle ->
+           JobTitle(
+               jobTitle[JobTitleTable.id].value,
+               jobTitle[JobTitleTable.title],
+           )
+
+       }
+   }
 
 }
