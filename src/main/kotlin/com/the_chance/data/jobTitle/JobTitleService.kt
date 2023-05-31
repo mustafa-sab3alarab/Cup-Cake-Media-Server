@@ -25,21 +25,28 @@ class JobTitleService(private val database: Database) {
             }.let { Pair(it, true) }
         } catch (e: Exception) {
             Pair(
-                findJobTitle(newTitle) ?: throw IllegalStateException("Failed to create job title"),
+                findJobTitleByTitle(newTitle) ?: throw IllegalStateException("Failed to create job title"),
                 false
             )
         }
     }
 
-    private suspend fun findJobTitle(title: String): JobTitle? {
+    private suspend fun findJobTitleByTitle(title: String): JobTitle? {
+        return searchJobTitle { JobTitleTable.title eq title }
+    }
+    suspend fun findJobTitleById(id: Int): JobTitle? {
+        return searchJobTitle { JobTitleTable.id eq id }
+    }
+
+    private suspend fun searchJobTitle(where: SqlExpressionBuilder.() -> Op<Boolean>): JobTitle? {
         return dbQuery {
-            JobTitleTable.select { JobTitleTable.title eq title }.singleOrNull()
-                    ?.let { jobTitle ->
-                        JobTitle(
-                                jobTitle[JobTitleTable.id].value,
-                                jobTitle[JobTitleTable.title],
-                        )
-                    }
+            JobTitleTable.select(where).singleOrNull()
+                ?.let { jobTitle ->
+                    JobTitle(
+                        jobTitle[JobTitleTable.id].value,
+                        jobTitle[JobTitleTable.title],
+                    )
+                }
 
         }
     }
