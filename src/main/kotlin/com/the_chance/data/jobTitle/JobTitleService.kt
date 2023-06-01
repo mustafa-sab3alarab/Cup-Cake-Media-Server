@@ -24,6 +24,17 @@ class JobTitleService(private val database: Database) {
        }
    }
 
+    suspend fun insertJobTitle(jobTitle: String) = dbQuery {
+        val newJobTitle = JobTitleTable.insert {
+            it[title] = jobTitle
+        }
+
+        JobTitle(
+            id = newJobTitle[JobTitleTable.id].value,
+            title = newJobTitle[JobTitleTable.title]
+        )
+    }
+
     suspend fun isJobTitleIdValid(id: Int): Boolean {
         return dbQuery {
             JobTitleTable.select { JobTitleTable.id eq id }.empty().not()
