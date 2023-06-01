@@ -5,5 +5,5 @@ import java.time.Instant
 
 object PostTable : UUIDTable() {
     val content = text("content")
-    val creationTime = long("created_at").default(Instant.now().toEpochMilli())
+    val creationTime = long("createdAt").default(Instant.now().toEpochMilli())
 }
