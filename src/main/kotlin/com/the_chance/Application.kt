@@ -1,11 +1,15 @@
 package com.the_chance
 
-import com.the_chance.data.ProductService
+import com.the_chance.data.getDataBase
+import com.the_chance.data.job.JobService
+import com.the_chance.data.jobTitle.JobTitleService
+import com.the_chance.data.post.PostService
+import com.the_chance.plugins.configureMonitoring
+import com.the_chance.plugins.configureRouting
+import com.the_chance.plugins.configureSerialization
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import com.the_chance.plugins.*
-import org.jetbrains.exposed.sql.Database
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
@@ -13,22 +17,13 @@ fun main() {
 
 fun Application.module() {
 
-    //environment
-    val host = System.getenv("host")
-    val port = System.getenv("port")
-    val databaseName = System.getenv("databaseName")
-    val databaseUsername = System.getenv("databaseUsername")
-    val databasePassword = System.getenv("databasePassword")
+    val database = getDataBase()
 
-    val database = Database.connect(
-        "jdbc:postgresql://$host:$port/$databaseName",
-        driver = "org.postgresql.Driver",
-        user = databaseUsername,
-        password = databasePassword
-    )
+    val postService = PostService(database)
+    val jobTitleService = JobTitleService(database)
+    val jobService = JobService(database)
 
-    val productService = ProductService(database)
     configureSerialization()
     configureMonitoring()
-    configureRouting(productService)
+    configureRouting(postService, jobService, jobTitleService)
 }
