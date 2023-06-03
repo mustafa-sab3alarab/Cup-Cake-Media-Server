@@ -1,6 +1,7 @@
 package com.the_chance
 
 import com.the_chance.controllers.JobController
+import com.the_chance.controllers.JobTitleController
 import com.the_chance.controllers.PostsController
 import com.the_chance.data.getDataBase
 import com.the_chance.data.job.JobService
@@ -25,11 +26,12 @@ fun Application.module() {
     val postsController = PostsController(postService)
 
     val jobTitleService = JobTitleService(database)
+    val jobTitleController = JobTitleController(jobTitleService)
 
     val jobService = JobService(database)
     val jobController = JobController(jobService, jobTitleService)
 
     configureSerialization()
     configureMonitoring()
-    configureRouting(postsController, jobController, jobTitleService)
+    configureRouting(postsController, jobController, jobTitleController)
 }

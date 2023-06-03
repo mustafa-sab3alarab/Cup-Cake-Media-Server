@@ -30,6 +30,8 @@ suspend fun PipelineContext<Unit, ApplicationCall>.tryQuery(query: suspend () ->
         call.respond(HttpStatusCode.NotFound, ServerResponse.error("Opps!, this job not found."))
     } catch (throwable: DeleteError) {
         call.respond(HttpStatusCode.BadRequest, ServerResponse.success("delete failed, check the id and try again"))
+    } catch (throwable: NoJobTitlesFoundError) {
+        call.respond(HttpStatusCode.NoContent)
     } catch (e: Exception) {
         call.respond(HttpStatusCode.InternalServerError,ServerResponse.error(e.message.toString()))
     }

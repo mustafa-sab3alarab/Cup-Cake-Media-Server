@@ -24,6 +24,7 @@ class JobTitleService(database: Database) {
        }
    }
 
+    //todo this is a temporary solution and should be removed in the future
     suspend fun insertJobTitle(jobTitle: String) = dbQuery {
         val newJobTitle = JobTitleTable.insert {
             it[title] = jobTitle
