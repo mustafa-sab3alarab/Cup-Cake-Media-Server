@@ -66,31 +66,29 @@ class JobService(database: Database) {
 
     suspend fun getJobById(jobId: UUID): Job? {
         return dbQuery {
-                JobTable.select { JobTable.id eq jobId }.singleOrNull()
-                    ?.let { job ->
-                        Job(
-                            id = job[JobTable.id].value.toString(),
-                            jobTitleId = job[JobTable.jobTitleId].value,
-                            company = job[JobTable.company],
-                            createdAt = job[JobTable.createdAt],
-                            workType = job[JobTable.workType],
-                            jobLocation = job[JobTable.jobLocation],
-                            jobType = job[JobTable.jobType],
-                            jobDescription = job[JobTable.jobDescription],
-                            jobSalary = job[JobTable.salary]
-                        )
-                    }
-
-
+            JobTable.select { JobTable.id eq jobId }.singleOrNull()
+                ?.let { job ->
+                    Job(
+                        id = job[JobTable.id].value.toString(),
+                        jobTitleId = job[JobTable.jobTitleId].value,
+                        company = job[JobTable.company],
+                        createdAt = job[JobTable.createdAt],
+                        workType = job[JobTable.workType],
+                        jobLocation = job[JobTable.jobLocation],
+                        jobType = job[JobTable.jobType],
+                        jobDescription = job[JobTable.jobDescription],
+                        jobSalary = job[JobTable.salary]
+                    )
+                }
         }
     }
 
     suspend fun deleteJob(jobId: UUID) {
-         return dbQuery {
-             val deleteResult = JobTable.deleteWhere { JobTable.id eq jobId }
-             if(deleteResult != 1) {
-                 throw DeleteError()
-             }
+        return dbQuery {
+            val deleteResult = JobTable.deleteWhere { JobTable.id eq jobId }
+            if (deleteResult != 1) {
+                throw DeleteError()
+            }
         }
     }
 }
