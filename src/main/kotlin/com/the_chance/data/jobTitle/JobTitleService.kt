@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
-class JobTitleService(private val database: Database) {
+class JobTitleService(database: Database) {
 
     init {
         transaction(database) {
@@ -35,7 +35,7 @@ class JobTitleService(private val database: Database) {
         )
     }
 
-    suspend fun isJobTitleIdValid(id: Int): Boolean {
+    suspend fun checkIfJobTitleExist(id: Int): Boolean {
         return dbQuery {
             JobTitleTable.select { JobTitleTable.id eq id }.empty().not()
         }

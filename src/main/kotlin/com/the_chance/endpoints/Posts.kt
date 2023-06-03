@@ -16,14 +16,14 @@ fun Routing.postsRoutes(postsController: PostsController) {
             val params = call.receiveParameters()
             val content = params["content"]?.trim()
 
-            val newPost = postsController.tryCreatePost(content)
+            val newPost = postsController.createPost(content)
             call.respond(HttpStatusCode.Created, ServerResponse.success(newPost, successMessage = "Post created successfully"))
         }
     }
 
     get("/posts") {
         tryQuery {
-            val posts = postsController.tryGetPosts()
+            val posts = postsController.getPosts()
             call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
         }
     }
@@ -32,7 +32,7 @@ fun Routing.postsRoutes(postsController: PostsController) {
             tryQuery {
                 val postId = call.parameters["postId"]?.trim()
 
-                val post = postsController.tryGetPostById(postId)
+                val post = postsController.getPostById(postId)
                 call.respond(HttpStatusCode.OK, ServerResponse.success(post))
             }
     }

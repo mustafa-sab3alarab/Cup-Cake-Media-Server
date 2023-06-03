@@ -9,7 +9,7 @@ import com.the_chance.utils.NoPostFoundError
 
 
 class PostsController(private val postService: PostService) {
-    suspend fun tryCreatePost(content: String?): Post {
+    suspend fun createPost(content: String?): Post {
         if (isValidContent(content)) {
             return postService.createPost(content!!)
         } else {
@@ -17,12 +17,12 @@ class PostsController(private val postService: PostService) {
         }
     }
 
-    suspend fun tryGetPosts(): List<Post> {
+    suspend fun getPosts(): List<Post> {
         val posts = postService.getAllPost()
         return posts.ifEmpty { throw NoPostFoundError() }
     }
 
-    suspend fun tryGetPostById(postId: String?): Post {
+    suspend fun getPostById(postId: String?): Post {
         val postUUID = isValidUUID(postId)
         return postService.getPostById(postUUID) ?: throw NoPostFoundError()
     }

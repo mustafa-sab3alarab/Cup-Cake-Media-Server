@@ -1,8 +1,8 @@
 package com.the_chance.plugins
 
 
+import com.the_chance.controllers.JobController
 import com.the_chance.controllers.PostsController
-import com.the_chance.data.job.JobService
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.utils.ServerResponse
 import com.the_chance.endpoints.jobRoutes
@@ -14,7 +14,7 @@ import io.ktor.server.routing.*
 
 fun Application.configureRouting(
     postsController: PostsController,
-    jobService: JobService,
+    jobController: JobController,
     jobTitleService: JobTitleService
 ) {
     routing {
@@ -23,6 +23,6 @@ fun Application.configureRouting(
         }
         postsRoutes(postsController)
         jobTitleRoute(jobTitleService)
-        jobRoutes(jobService,jobTitleService)
+        jobRoutes(jobController)
     }
 }
