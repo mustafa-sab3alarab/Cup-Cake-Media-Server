@@ -14,10 +14,6 @@ class InValidJobError: Throwable()
 
 class InValidSalaryError: Throwable()
 
-class NoJobsFoundError: Throwable()
-
 class NoJobFoundError: Throwable()
 
 class DeleteError: Throwable()
-
-class NoJobTitlesFoundError: Throwable()

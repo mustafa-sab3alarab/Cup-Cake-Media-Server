@@ -18,8 +18,7 @@ class PostsController(private val postService: PostService) {
     }
 
     suspend fun getPosts(): List<Post> {
-        val posts = postService.getAllPost()
-        return posts.ifEmpty { throw NoPostFoundError() }
+        return postService.getAllPost()
     }
 
     suspend fun getPostById(postId: String?): Post {

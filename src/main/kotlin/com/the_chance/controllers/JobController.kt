@@ -22,9 +22,7 @@ class JobController(private val jobService: JobService,private val jobTitleServi
     }
 
     suspend fun getAllJobs(): List<JobWithJobTitle> {
-        return jobService.getAllJobs().ifEmpty {
-            throw NoJobsFoundError()
-        }
+        return jobService.getAllJobs()
     }
 
     suspend fun getJobById(jobId: String?): Job {

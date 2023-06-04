@@ -42,7 +42,7 @@ fun Routing.jobRoutes(jobController: JobController) {
         }
     }
 
-    get("/job") {
+    get("/jobs") {
         tryQuery {
             val jobs = jobController.getAllJobs()
             call.respond(HttpStatusCode.OK, ServerResponse.success(jobs))
