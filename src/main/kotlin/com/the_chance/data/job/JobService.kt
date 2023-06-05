@@ -3,12 +3,13 @@ package com.the_chance.data.job
 import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.utils.dbQuery
+import com.the_chance.utils.DeleteError
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class JobService(private val database: Database) {
+class JobService(database: Database) {
 
     init {
         transaction(database) {
@@ -63,43 +64,31 @@ class JobService(private val database: Database) {
         }
     }
 
-
-    suspend fun getJobById(jobId: String): Job? {
+    suspend fun getJobById(jobId: UUID): Job? {
         return dbQuery {
-            UUID.fromString(jobId).let { uuid ->
-                JobTable.select { JobTable.id eq uuid }.singleOrNull()
-                    ?.let { job ->
-                        Job(
-                            id = job[JobTable.id].value.toString(),
-                            jobTitleId = job[JobTable.jobTitleId].value,
-                            company = job[JobTable.company],
-                            createdAt = job[JobTable.createdAt],
-                            workType = job[JobTable.workType],
-                            jobLocation = job[JobTable.jobLocation],
-                            jobType = job[JobTable.jobType],
-                            jobDescription = job[JobTable.jobDescription],
-                            jobSalary = job[JobTable.salary]
-                        )
-                    }
-            }
-
+            JobTable.select { JobTable.id eq jobId }.singleOrNull()
+                ?.let { job ->
+                    Job(
+                        id = job[JobTable.id].value.toString(),
+                        jobTitleId = job[JobTable.jobTitleId].value,
+                        company = job[JobTable.company],
+                        createdAt = job[JobTable.createdAt],
+                        workType = job[JobTable.workType],
+                        jobLocation = job[JobTable.jobLocation],
+                        jobType = job[JobTable.jobType],
+                        jobDescription = job[JobTable.jobDescription],
+                        jobSalary = job[JobTable.salary]
+                    )
+                }
         }
     }
 
-    suspend fun deleteJob(id: String) {
+    suspend fun deleteJob(jobId: UUID) {
         return dbQuery {
-            UUID.fromString(id)?.let { uuid ->
-                JobTable.deleteWhere { JobTable.id eq uuid }
+            val deleteResult = JobTable.deleteWhere { JobTable.id eq jobId }
+            if (deleteResult != 1) {
+                throw DeleteError()
             }
         }
     }
-
-    suspend fun isJobAvailable(id: String): Boolean {
-        return dbQuery {
-            UUID.fromString(id)?.let {uuid ->
-                JobTable.select { JobTable.id eq uuid }.count() > 0
-            } ?: false
-        }
-    }
-
 }

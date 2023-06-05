@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
-class JobTitleService(private val database: Database) {
+class JobTitleService(database: Database) {
 
     init {
         transaction(database) {
@@ -24,6 +24,7 @@ class JobTitleService(private val database: Database) {
        }
    }
 
+    //todo this is a temporary solution and should be removed in the future
     suspend fun insertJobTitle(jobTitle: String) = dbQuery {
         val newJobTitle = JobTitleTable.insert {
             it[title] = jobTitle
@@ -35,7 +36,7 @@ class JobTitleService(private val database: Database) {
         )
     }
 
-    suspend fun isJobTitleIdValid(id: Int): Boolean {
+    suspend fun checkIfJobTitleExist(id: Int): Boolean {
         return dbQuery {
             JobTitleTable.select { JobTitleTable.id eq id }.empty().not()
         }
