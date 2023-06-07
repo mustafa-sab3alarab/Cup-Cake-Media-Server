@@ -8,6 +8,7 @@ import com.the_chance.endpoints.jobRoutes
 import com.the_chance.endpoints.jobTitleRoute
 import com.the_chance.endpoints.postsRoutes
 import io.ktor.server.application.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(
@@ -16,6 +17,7 @@ fun Application.configureRouting(
     jobTitleController: JobTitleController
 ) {
     routing {
+        swaggerUI(path = "swagger")
         postsRoutes(postsController)
         jobTitleRoute(jobTitleController)
         jobRoutes(jobController)
