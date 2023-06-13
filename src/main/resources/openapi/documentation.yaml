@@ -130,6 +130,27 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/JobWithJobTitle"
+  /login:
+    get:
+      description: ""
+      parameters:
+      - name: "username"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "password"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Token"
   /post:
     post:
       description: ""
@@ -174,6 +195,37 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Post"
+  /register:
+    post:
+      description: ""
+      parameters:
+      - name: "username"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "fullName"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "phoneNumber"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "password"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserWithToken"
   /json/kotlinx-serialization:
     get:
       description: ""
@@ -241,6 +293,14 @@ components:
         jobSalary:
           type: "number"
           format: "double"
+    Token:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+        expireTime:
+          type: "integer"
+          format: "int64"
     Post:
       type: "object"
       properties:
@@ -251,3 +311,19 @@ components:
         createdAt:
           type: "integer"
           format: "int64"
+    UserWithToken:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        username:
+          type: "string"
+        fullName:
+          type: "string"
+        phoneNumber:
+          type: "string"
+        createdAt:
+          type: "integer"
+          format: "int64"
+        token:
+          $ref: "#/components/schemas/Token"
