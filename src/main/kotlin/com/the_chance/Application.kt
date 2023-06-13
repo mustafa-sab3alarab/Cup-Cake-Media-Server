@@ -2,14 +2,16 @@ package com.the_chance
 
 import com.the_chance.controllers.JobController
 import com.the_chance.controllers.JobTitleController
+import com.the_chance.data.authentication.TokenService
 import com.the_chance.controllers.PostsController
+import com.the_chance.controllers.*
 import com.the_chance.data.getDataBase
 import com.the_chance.data.job.JobService
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.post.PostService
-import com.the_chance.plugins.configureMonitoring
+import com.the_chance.data.user.UserService
+import com.the_chance.plugins.*
 import com.the_chance.plugins.configureRouting
-import com.the_chance.plugins.configureSerialization
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -31,7 +33,14 @@ fun Application.module() {
     val jobService = JobService(database)
     val jobController = JobController(jobService, jobTitleService)
 
+    val tokenService = TokenService()
+    val userService = UserService(database)
+    val authenticationController = AuthenticationController(userService, tokenService)
+
+
+    configureAuthentication(tokenService)
     configureSerialization()
     configureMonitoring()
-    configureRouting(postsController, jobController, jobTitleController)
+    configureErrorsException()
+    configureRouting(postsController, jobController, jobTitleController, authenticationController)
 }

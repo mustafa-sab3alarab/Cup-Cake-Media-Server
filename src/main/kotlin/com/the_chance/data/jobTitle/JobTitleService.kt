@@ -14,15 +14,15 @@ class JobTitleService(database: Database) {
         }
     }
 
-   suspend fun getAllJobTitle():List<JobTitle> = dbQuery {
-       JobTitleTable.selectAll().map {jobTitle ->
-           JobTitle(
-               jobTitle[JobTitleTable.id].value,
-               jobTitle[JobTitleTable.title],
-           )
+    suspend fun getAllJobTitle(): List<JobTitle> = dbQuery {
+        JobTitleTable.selectAll().map { jobTitle ->
+            JobTitle(
+                jobTitle[JobTitleTable.id].value,
+                jobTitle[JobTitleTable.title],
+            )
 
-       }
-   }
+        }
+    }
 
     //todo this is a temporary solution and should be removed in the future
     suspend fun insertJobTitle(jobTitle: String) = dbQuery {
@@ -42,5 +42,17 @@ class JobTitleService(database: Database) {
         }
     }
 
+    suspend fun findJobTitleById(id: Int): JobTitle? {
+        return dbQuery {
+            JobTitleTable.select { JobTitleTable.id eq id }.singleOrNull()
+                ?.let { jobTitle ->
+                    JobTitle(
+                        jobTitle[JobTitleTable.id].value,
+                        jobTitle[JobTitleTable.title],
+                    )
+                }
+
+        }
+    }
 
 }

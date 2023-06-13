@@ -5,35 +5,43 @@ import com.the_chance.data.utils.ServerResponse
 import com.the_chance.endpoints.utils.tryQuery
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Routing.postsRoutes(postsController: PostsController) {
 
-    post("/post") {
-        tryQuery {
-            val params = call.receiveParameters()
-            val content = params["content"]?.trim()
+    authenticate("auth-jwt") {
 
-            val newPost = postsController.createPost(content)
-            call.respond(HttpStatusCode.Created, ServerResponse.success(newPost, successMessage = "Post created successfully"))
+        post("/post") {
+            tryQuery {
+                val params = call.receiveParameters()
+                val content = params["content"]?.trim()
+
+                val newPost = postsController.createPost(content)
+                call.respond(
+                    HttpStatusCode.Created,
+                    ServerResponse.success(newPost, successMessage = "Post created successfully")
+                )
+            }
         }
-    }
 
-    get("/posts") {
-        tryQuery {
-            val posts = postsController.getPosts()
-            call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
+
+        get("/posts") {
+            tryQuery {
+                val posts = postsController.getPosts()
+                call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
+            }
         }
-    }
 
-    get("/post/{postId}") {
+        get("/post/{postId}") {
             tryQuery {
                 val postId = call.parameters["postId"]?.trim()
 
                 val post = postsController.getPostById(postId)
                 call.respond(HttpStatusCode.OK, ServerResponse.success(post))
             }
+        }
     }
 }
