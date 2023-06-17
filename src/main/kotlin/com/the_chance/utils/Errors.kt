@@ -47,3 +47,5 @@ class NoJobTitleFoundRegisterError(): Throwable()
 //endregion
 
 class LoginFailureError : Throwable()
+
+object Unauthorized : Throwable()

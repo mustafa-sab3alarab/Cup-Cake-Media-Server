@@ -13,7 +13,7 @@ fun Application.configureAuthentication(tokenService: TokenService) {
         jwt("auth-jwt") {
             verifier(tokenService.jwtVerifier())
             validate { jwtCredential ->
-                if (jwtCredential.payload.getClaim("uid").asString() != null)
+                if (jwtCredential.payload.subject != null)
                     JWTPrincipal(jwtCredential.payload)
                 else null
             }

@@ -13,7 +13,7 @@ class TokenService {
         val expireTime = Date(System.currentTimeMillis() + THREE_DAYS)
 
         val token = JWT.create()
-            .withClaim("uid", userId)
+            .withSubject(userId)
             .withExpiresAt(expireTime)
             .sign(Algorithm.HMAC256(secretKey))
 
