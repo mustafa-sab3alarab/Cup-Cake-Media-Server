@@ -1,48 +1,51 @@
 package com.the_chance.endpoints
 
-import com.the_chance.data.post.PostService
+import com.the_chance.controllers.PostsController
 import com.the_chance.data.utils.ServerResponse
-import com.the_chance.utils.isValidUUID
+import com.the_chance.endpoints.utils.tryQuery
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Routing.postsRoutes(postService: PostService) {
+fun Routing.postsRoutes(postsController: PostsController) {
 
-    post("/post") {
-        val params = call.receiveParameters()
-        val content = params["content"]?.trim()
+    authenticate("auth-jwt") {
 
-        if (content.isNullOrEmpty()) {
-            call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Content should not be empty"))
-        } else {
-            val newPost = postService.createPost(content)
-            call.respond(HttpStatusCode.Created, ServerResponse.success(newPost, successMessage = "Post created successfully"))
+        post("/post") {
+            tryQuery {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.payload?.subject
+
+                val params = call.receiveParameters()
+                val content = params["content"]?.trim()
+
+                postsController.createPost(userId, content)
+
+                call.respond(
+                    HttpStatusCode.Created,
+                    ServerResponse.success(Unit, successMessage = "Post created successfully")
+                )
+            }
         }
-    }
 
-    get("/posts") {
-        postService.getAllPost().takeIf { it.isNotEmpty() }?.let { posts ->
-            call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
-        } ?: call.respond(HttpStatusCode.NoContent)
-    }
+        get("/posts") {
+            tryQuery {
+                val posts = postsController.getPosts()
+                call.respond(HttpStatusCode.OK, ServerResponse.success(posts))
+            }
+        }
 
-    get("/post/{idPost}") {
+        get("/post/{postId}") {
+            tryQuery {
+                val postId = call.parameters["postId"]?.trim()
 
-        suspend fun fetchPost(idPost: String) {
-            postService.getPostById(idPost)?.let { post ->
+                val post = postsController.getPostById(postId)
                 call.respond(HttpStatusCode.OK, ServerResponse.success(post))
-            } ?: call.respond(HttpStatusCode.NotFound, ServerResponse.error("Opps!, this post not found."))
-        }
-
-        call.parameters["idPost"]?.let { id ->
-            id.takeIf {
-                isValidUUID(it)
-            }?.let { idPost ->
-                fetchPost(idPost)
-            } ?: call.respond(HttpStatusCode.BadRequest)
+            }
         }
     }
 }

@@ -1,0 +1,50 @@
+package com.the_chance.data
+
+import com.the_chance.data.job.JobTable
+import com.the_chance.data.jobTitle.JobTitleTable
+import com.the_chance.data.post.PostTable
+import com.the_chance.data.user.UserTable
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
+
+object AppDatabase {
+
+    private val tables = arrayOf(JobTable, JobTitleTable, PostTable, UserTable)
+
+    init {
+        createTables()
+    }
+
+    fun getDataBase(): Database {
+
+        val host = System.getenv("host")
+        val port = System.getenv("port")
+        val databaseName = System.getenv("databaseName")
+        val databaseUsername = System.getenv("databaseUsername")
+        val databasePassword = System.getenv("databasePassword")
+
+        return Database.connect(
+            "jdbc:postgresql://$host:$port/$databaseName",
+            driver = "org.postgresql.Driver",
+            user = databaseUsername,
+            password = databasePassword
+        )
+    }
+
+
+    private fun createTables() {
+        transaction(getDataBase()) {
+            tables.forEach {
+                SchemaUtils.create(it)
+            }
+        }
+    }
+
+    fun dropTables() {
+        transaction(getDataBase()) {
+            SchemaUtils.drop(*tables)
+        }
+        createTables()
+    }
+}

@@ -2,28 +2,24 @@ package com.the_chance.data.jobTitle
 
 
 import com.the_chance.data.utils.dbQuery
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 
 
-class JobTitleService(private val database: Database) {
+class JobTitleService {
 
-    init {
-        transaction(database) {
-            SchemaUtils.create(JobTitleTable)
+    suspend fun getAllJobTitle(): List<JobTitle> = dbQuery {
+        JobTitleTable.selectAll().map { jobTitle ->
+            JobTitle(
+                jobTitle[JobTitleTable.id].value,
+                jobTitle[JobTitleTable.title],
+            )
+
         }
     }
 
-   suspend fun getAllJobTitle():List<JobTitle> = dbQuery {
-       JobTitleTable.selectAll().map {jobTitle ->
-           JobTitle(
-               jobTitle[JobTitleTable.id].value,
-               jobTitle[JobTitleTable.title],
-           )
-
-       }
-   }
-
+    //todo this is a temporary solution and should be removed in the future
     suspend fun insertJobTitle(jobTitle: String) = dbQuery {
         val newJobTitle = JobTitleTable.insert {
             it[title] = jobTitle
@@ -35,11 +31,23 @@ class JobTitleService(private val database: Database) {
         )
     }
 
-    suspend fun isJobTitleIdValid(id: Int): Boolean {
+    suspend fun checkIfJobTitleExist(id: Int): Boolean {
         return dbQuery {
             JobTitleTable.select { JobTitleTable.id eq id }.empty().not()
         }
     }
 
+    suspend fun findJobTitleById(id: Int): JobTitle? {
+        return dbQuery {
+            JobTitleTable.select { JobTitleTable.id eq id }.singleOrNull()
+                ?.let { jobTitle ->
+                    JobTitle(
+                        jobTitle[JobTitleTable.id].value,
+                        jobTitle[JobTitleTable.title],
+                    )
+                }
+
+        }
+    }
 
 }

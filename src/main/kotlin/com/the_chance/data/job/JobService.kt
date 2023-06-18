@@ -3,103 +3,145 @@ package com.the_chance.data.job
 import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.utils.dbQuery
-import org.jetbrains.exposed.sql.*
+import com.the_chance.utils.DeleteError
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import java.util.*
 
-class JobService(private val database: Database) {
+class JobService {
 
-    init {
-        transaction(database) {
-            SchemaUtils.create(JobTable)
-        }
-    }
-
-    suspend fun createJob(job: Job): Job = dbQuery {
-        val newJob = JobTable.insert {
-            it[this.jobTitleId] = job.jobTitleId
+    // region user job
+    suspend fun createJob(userUUID: UUID, job: Job) = dbQuery {
+        JobTable.insert {
+            it[this.jobTitleId] = job.jobTitle.id
+            it[this.creatorId] = userUUID
             it[this.company] = job.company
             it[this.workType] = job.workType
             it[this.jobLocation] = job.jobLocation
             it[this.jobType] = job.jobType
             it[this.jobDescription] = job.jobDescription
-            it[this.salary] = job.jobSalary
+            it[this.minSalary] = job.jobSalary.minSalary
+            it[this.maxSalary] = job.jobSalary.maxSalary
+            it[this.experience] = job.experience
+            it[this.education] = job.education
         }
-        Job(
-            id = newJob[JobTable.id].value.toString(),
-            jobTitleId = newJob[JobTable.jobTitleId].value,
-            company = newJob[JobTable.company],
-            createdAt = newJob[JobTable.createdAt],
-            workType = newJob[JobTable.workType],
-            jobLocation = newJob[JobTable.jobLocation],
-            jobType = newJob[JobTable.jobType],
-            jobDescription = newJob[JobTable.jobDescription],
-            jobSalary = newJob[JobTable.salary]
-        )
     }
 
-    suspend fun getAllJobs(): List<JobWithJobTitle> {
+    suspend fun getAllUserJobs(userId: UUID): List<Job> {
         return dbQuery {
             (JobTable innerJoin JobTitleTable)
                 .slice(JobTable.columns + JobTitleTable.columns)
-                .selectAll()
-                .map {
-                    JobWithJobTitle(
-                        id = it[JobTable.id].value.toString(),
+                .select { JobTable.creatorId eq userId }
+                .map { mapJobFromResultRow(it) }
+        }
+    }
+
+
+    suspend fun getRecommendedJobs(userUUID: UUID, limit: Int): List<Job> {
+        // TODO(" we should have job title in user table)
+        // we can get user job title from payload
+        return dbQuery { emptyList() }
+    }
+
+    suspend fun getTopSalaryJobsInLocation(userUUID: UUID, limit: Int): List<Job> {
+        // TODO(" we should have user location)
+        return dbQuery { emptyList() }
+    }
+
+    suspend fun getJobsInLocation(userUUID: UUID, limit: Int): List<Job> {
+        // TODO(" we should have user location)
+        return dbQuery { emptyList() }
+    }
+
+    suspend fun deleteJob(jobId: UUID) {
+        return dbQuery {
+            val deleteResult = JobTable.deleteWhere { (JobTable.id eq jobId) }
+            println("Mustafa $deleteResult")
+            if (deleteResult != 1) {
+                throw DeleteError()
+            }
+        }
+    }
+
+    //endregion
+
+    //region public job
+
+    suspend fun getJobById(jobId: UUID): Job? {
+        return dbQuery {
+            (JobTable innerJoin JobTitleTable)
+                .select { JobTable.id eq jobId }.singleOrNull()
+                ?.let { job ->
+                    Job(
+                        id = job[JobTable.id].value.toString(),
                         jobTitle = JobTitle(
-                            id = it[JobTitleTable.id].value,
-                            title = it[JobTitleTable.title]
+                            job[JobTitleTable.id].value,
+                            job[JobTitleTable.title]
                         ),
-                        company = it[JobTable.company],
-                        createdAt = it[JobTable.createdAt],
-                        workType = it[JobTable.workType],
-                        jobLocation = it[JobTable.jobLocation],
-                        jobType = it[JobTable.jobType],
-                        jobDescription = it[JobTable.jobDescription],
-                        jobSalary = it[JobTable.salary]
+                        creatorId = job[JobTable.creatorId].value.toString(),
+                        company = job[JobTable.company],
+                        createdAt = job[JobTable.createdAt].toEpochMilli(),
+                        workType = job[JobTable.workType],
+                        jobLocation = job[JobTable.jobLocation],
+                        jobType = job[JobTable.jobType],
+                        jobDescription = job[JobTable.jobDescription],
+                        jobSalary = JobSalary(
+                            minSalary = job[JobTable.minSalary],
+                            maxSalary = job[JobTable.maxSalary],
+                        ),
+                        education = job[JobTable.education],
+                        experience = job[JobTable.experience],
                     )
                 }
         }
     }
 
-
-    suspend fun getJobById(jobId: String): Job? {
+    suspend fun getAllJobs(): List<Job> {
         return dbQuery {
-            UUID.fromString(jobId).let { uuid ->
-                JobTable.select { JobTable.id eq uuid }.singleOrNull()
-                    ?.let { job ->
-                        Job(
-                            id = job[JobTable.id].value.toString(),
-                            jobTitleId = job[JobTable.jobTitleId].value,
-                            company = job[JobTable.company],
-                            createdAt = job[JobTable.createdAt],
-                            workType = job[JobTable.workType],
-                            jobLocation = job[JobTable.jobLocation],
-                            jobType = job[JobTable.jobType],
-                            jobDescription = job[JobTable.jobDescription],
-                            jobSalary = job[JobTable.salary]
-                        )
-                    }
-            }
-
+            (JobTable innerJoin JobTitleTable)
+                .slice(JobTable.columns + JobTitleTable.columns)
+                .selectAll()
+                .map { mapJobFromResultRow(it) }
         }
     }
 
-    suspend fun deleteJob(id: String) {
+    suspend fun getPopularJobs(limit: Int): List<Job> {
         return dbQuery {
-            UUID.fromString(id)?.let { uuid ->
-                JobTable.deleteWhere { JobTable.id eq uuid }
-            }
+            (JobTable innerJoin JobTitleTable)
+                .slice(JobTable.columns + JobTitleTable.columns)
+                .select { JobTitleTable.title.isNotNull() }
+                .take(limit)
+                .map { mapJobFromResultRow(it) }
         }
     }
 
-    suspend fun isJobAvailable(id: String): Boolean {
-        return dbQuery {
-            UUID.fromString(id)?.let {uuid ->
-                JobTable.select { JobTable.id eq uuid }.count() > 0
-            } ?: false
-        }
+    //endregion
+
+
+    private fun mapJobFromResultRow(row: ResultRow): Job {
+        return Job(
+            id = row[JobTable.id].value.toString(),
+            jobTitle = JobTitle(
+                id = row[JobTitleTable.id].value,
+                title = row[JobTitleTable.title]
+            ),
+            creatorId = row[JobTable.creatorId].value.toString(),
+            company = row[JobTable.company],
+            createdAt = row[JobTable.createdAt].toEpochMilli(),
+            workType = row[JobTable.workType],
+            jobLocation = row[JobTable.jobLocation],
+            jobType = row[JobTable.jobType],
+            jobDescription = row[JobTable.jobDescription],
+            jobSalary = JobSalary(
+                minSalary = row[JobTable.minSalary],
+                maxSalary = row[JobTable.maxSalary]
+            ),
+            education = row[JobTable.education],
+            experience = row[JobTable.experience]
+        )
     }
 
 }

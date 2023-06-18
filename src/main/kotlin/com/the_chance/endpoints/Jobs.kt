@@ -1,104 +1,162 @@
 package com.the_chance.endpoints
 
+import com.the_chance.controllers.JobController
 import com.the_chance.data.job.Job
-import com.the_chance.data.job.JobService
-import com.the_chance.data.jobTitle.JobTitleService
+import com.the_chance.data.job.JobSalary
+import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.utils.ServerResponse
-import com.the_chance.utils.isValidUUID
-import com.the_chance.utils.salaryValidation
+import com.the_chance.endpoints.utils.tryQuery
+import com.the_chance.utils.ID
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Routing.jobRoutes(jobService: JobService, jobTitleService: JobTitleService) {
+fun Routing.jobRoutes(jobController: JobController) {
 
-    post("/job") {
+    authenticate("auth-jwt") {
 
-        try {
-            val params = call.receiveParameters()
+        route("/user") {
 
-            val jobTitleId = params["jobTitleId"]?.trim().orEmpty()
-            val company = params["company"]?.trim().orEmpty()
-            val workType = params["workType"]?.trim().orEmpty()
-            val jobLocation = params["jobLocation"]?.trim().orEmpty()
-            val jobType = params["jobType"]?.trim().orEmpty()
-            val jobDescription = params["jobDescription"]?.trim().orEmpty()
-            val jobSalary = params["jobSalary"]?.trim().orEmpty()
+            route("/job") {
 
-            if (jobTitleId.toIntOrNull() == null) {
-                call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Invalid job title ID."))
-            } else {
-                if (!jobTitleService.isJobTitleIdValid(jobTitleId.toInt())) {
-                    call.respond(HttpStatusCode.NotFound, ServerResponse.error("Job title ID does not exist"))
+                post {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val params = call.receiveParameters()
+                        val jobTitleId = params["jobTitleId"]?.trim()?.toIntOrNull() ?: -1
+                        val company = params["company"]?.trim().orEmpty()
+                        val workType = params["workType"]?.trim().orEmpty()
+                        val jobLocation = params["jobLocation"]?.trim().orEmpty()
+                        val jobType = params["jobType"]?.trim().orEmpty()
+                        val jobDescription = params["jobDescription"]?.trim().orEmpty()
+                        val minSalary = params["minSalary"]?.trim()?.toDoubleOrNull() ?: -1.0
+                        val maxSalary = params["maxSalary"]?.trim()?.toDoubleOrNull() ?: -1.0
+                        val experience = params["experience"]?.trim().orEmpty()
+                        val education = params["education"]?.trim().orEmpty()
+
+                        jobController.createJob(
+                            Job(
+                                jobTitle = JobTitle(jobTitleId),
+                                creatorId = userId ?: "",
+                                company = company,
+                                workType = workType,
+                                jobLocation = jobLocation,
+                                jobType = jobType,
+                                jobDescription = jobDescription,
+                                jobSalary = JobSalary(minSalary, maxSalary),
+                                experience = experience,
+                                education = education
+                            )
+                        )
+
+                        call.respond(
+                            HttpStatusCode.Created,
+                            ServerResponse.success("Job created successfully")
+                        )
+                    }
                 }
+
+                delete("/{$ID}") {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val jobId = call.parameters[ID]?.trim()
+                        jobController.deleteJob(userId, jobId)
+                        call.respond(HttpStatusCode.Accepted, ServerResponse.success("Job deleted successfully"))
+                    }
+                }
+
             }
 
-            if (company.isEmpty() || workType.isEmpty() || jobLocation.isEmpty() || jobType.isEmpty() || jobDescription.isEmpty()) {
-                call.respond(HttpStatusCode.BadRequest, ServerResponse.error("All fields are required.."))
+            route("/jobs") {
+
+                get {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val jobs = jobController.getAllUserJobs(userId)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(jobs))
+                    }
+                }
+
+                get("/recommended") {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                        val recommendedJobs = jobController.getRecommendedJobs(userId,limit)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(recommendedJobs))
+                    }
+                }
+
+                get("/topSalary") {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                        val topSalaryJobsInLocation = jobController.getTopSalaryJobsInLocation(userId,limit)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(topSalaryJobsInLocation))
+                    }
+                }
+
+                get("/location") {
+                    tryQuery {
+                        val principal = call.principal<JWTPrincipal>()
+                        val userId = principal?.subject
+
+                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                        val jobsInLocation = jobController.getJobsInLocation(userId,limit)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(jobsInLocation))
+                    }
+                }
+
             }
 
-            if (!salaryValidation(jobSalary)) {
-                call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Invalid salary."))
+        }
+
+        route("/public") {
+
+            route("/job") {
+
+                get("/{$ID}") {
+                    tryQuery {
+                        val jobId = call.parameters[ID]?.trim()
+                        val job = jobController.getJobById(jobId)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(job))
+                    }
+                }
+
             }
 
-            val newJob = jobService.createJob(
-                Job(
-                    jobTitleId = jobTitleId.toInt(),
-                    company = company,
-                    workType = workType,
-                    jobLocation = jobLocation,
-                    jobType = jobType,
-                    jobDescription = jobDescription,
-                    jobSalary = jobSalary.toDouble()
-                )
-            )
-            call.respond(
-                HttpStatusCode.Created,
-                ServerResponse.success(newJob, successMessage = "Job created successfully")
-            )
-        } catch (e: Exception) {
-            call.respond(ServerResponse.error(e.message.toString()))
-        }
-    }
+            route("/jobs") {
 
-    get("/job") {
-        jobService.getAllJobs().takeIf { it.isNotEmpty() }?.let {
-            call.respond(HttpStatusCode.OK, ServerResponse.success(it))
-        } ?: call.respond(HttpStatusCode.NoContent)
-    }
+                get {
+                    tryQuery {
+                        val jobs = jobController.getAllJobs()
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(jobs))
+                    }
+                }
 
-    get("/job/{id}") {
+                get("/popular") {
+                    tryQuery {
+                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                        val popularJobs = jobController.getPopularJobs(limit)
+                        call.respond(HttpStatusCode.OK, ServerResponse.success(popularJobs))
+                    }
+                }
 
-        suspend fun fetchJob(jobId: String) {
-            jobService.getJobById(jobId)?.let { job ->
-                call.respond(HttpStatusCode.OK, ServerResponse.success(job))
-            } ?: call.respond(HttpStatusCode.NotFound, ServerResponse.error("Opps!, this job not found."))
-        }
-
-        call.parameters["id"]?.let { id ->
-            id.takeIf {
-                isValidUUID(it)
-            }?.let { jobId ->
-                fetchJob(jobId)
-            } ?: call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Invalid job ID."))
-        }
-    }
-
-    delete("/job/{id}") {
-        val jobId = call.parameters["id"]?.let { id ->
-            id.takeIf { isValidUUID(it) }
-        }
-
-        jobId?.let {
-            if (jobService.isJobAvailable(it)) {
-                jobService.deleteJob(it)
-                call.respond(HttpStatusCode.Accepted, ServerResponse.success("Job deleted successfully"))
-            } else {
-                call.respond(HttpStatusCode.BadRequest, ServerResponse.success("Job not exist"))
             }
-        } ?: call.respond(HttpStatusCode.BadRequest, ServerResponse.success("Invalid job ID."))
 
+        }
     }
 }

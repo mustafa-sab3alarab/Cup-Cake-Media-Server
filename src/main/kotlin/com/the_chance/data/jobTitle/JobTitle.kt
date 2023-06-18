@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class JobTitle(
     val id: Int,
-    val title: String,
+    val title: String? = "",
 )

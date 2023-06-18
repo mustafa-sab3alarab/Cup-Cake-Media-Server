@@ -1,12 +1,17 @@
 package com.the_chance
 
-import com.the_chance.data.getDataBase
+import com.the_chance.controllers.JobController
+import com.the_chance.controllers.JobTitleController
+import com.the_chance.data.authentication.TokenService
+import com.the_chance.controllers.PostsController
+import com.the_chance.controllers.*
+import com.the_chance.data.AppDatabase
 import com.the_chance.data.job.JobService
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.post.PostService
-import com.the_chance.plugins.configureMonitoring
+import com.the_chance.data.user.UserService
+import com.the_chance.plugins.*
 import com.the_chance.plugins.configureRouting
-import com.the_chance.plugins.configureSerialization
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -17,13 +22,25 @@ fun main() {
 
 fun Application.module() {
 
-    val database = getDataBase()
+    val postService = PostService()
+    val postsController = PostsController(postService)
 
-    val postService = PostService(database)
-    val jobTitleService = JobTitleService(database)
-    val jobService = JobService(database)
+    val jobTitleService = JobTitleService()
+    val jobTitleController = JobTitleController(jobTitleService)
 
+    val jobService = JobService()
+    val jobController = JobController(jobService, jobTitleService)
+
+    val tokenService = TokenService()
+    val userService = UserService()
+    val authenticationController = AuthenticationController(userService, tokenService)
+
+    val database = AppDatabase
+    database.getDataBase()
+
+    configureAuthentication(tokenService)
     configureSerialization()
     configureMonitoring()
-    configureRouting(postService, jobService, jobTitleService)
+    configureErrorsException()
+    configureRouting(postsController, jobController, jobTitleController, authenticationController, database)
 }

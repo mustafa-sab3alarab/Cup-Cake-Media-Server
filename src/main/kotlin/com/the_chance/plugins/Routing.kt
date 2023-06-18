@@ -1,28 +1,26 @@
 package com.the_chance.plugins
 
 
-import com.the_chance.data.job.JobService
-import com.the_chance.data.jobTitle.JobTitleService
-import com.the_chance.data.post.PostService
-import com.the_chance.data.utils.ServerResponse
-import com.the_chance.endpoints.jobRoutes
-import com.the_chance.endpoints.jobTitleRoute
-import com.the_chance.endpoints.postsRoutes
+import com.the_chance.controllers.*
+import com.the_chance.data.AppDatabase
+import com.the_chance.endpoints.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(
-    postService: PostService,
-    jobService: JobService,
-    jobTitleService: JobTitleService
+    postsController: PostsController,
+    jobController: JobController,
+    jobTitleController: JobTitleController,
+    authenticationController: AuthenticationController,
+    database : AppDatabase
 ) {
     routing {
-        get("/") {
-            call.respond(ServerResponse.success("Welcome to Cup Cake Media"))
-        }
-        postsRoutes(postService)
-        jobTitleRoute(jobTitleService)
-        jobRoutes(jobService,jobTitleService)
+        swaggerUI(path = "swagger")
+        postsRoutes(postsController)
+        jobTitleRoute(jobTitleController)
+        jobRoutes(jobController)
+        authentication(authenticationController)
+        adminRoute(database)
     }
 }
