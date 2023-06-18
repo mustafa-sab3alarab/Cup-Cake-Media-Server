@@ -6,6 +6,7 @@ import com.the_chance.endpoints.utils.tryQuery
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,17 +17,20 @@ fun Routing.postsRoutes(postsController: PostsController) {
 
         post("/post") {
             tryQuery {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.payload?.subject
+
                 val params = call.receiveParameters()
                 val content = params["content"]?.trim()
 
-                val newPost = postsController.createPost(content)
+                postsController.createPost(userId, content)
+
                 call.respond(
                     HttpStatusCode.Created,
-                    ServerResponse.success(newPost, successMessage = "Post created successfully")
+                    ServerResponse.success(Unit, successMessage = "Post created successfully")
                 )
             }
         }
-
 
         get("/posts") {
             tryQuery {

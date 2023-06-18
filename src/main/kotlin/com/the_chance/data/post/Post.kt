@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class Post(
     val id: String,
     val content: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val creatorName: String
 )

@@ -5,7 +5,7 @@ import com.the_chance.controllers.JobTitleController
 import com.the_chance.data.authentication.TokenService
 import com.the_chance.controllers.PostsController
 import com.the_chance.controllers.*
-import com.the_chance.data.getDataBase
+import com.the_chance.data.AppDatabase
 import com.the_chance.data.job.JobService
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.post.PostService
@@ -22,25 +22,25 @@ fun main() {
 
 fun Application.module() {
 
-    val database = getDataBase()
-
-    val postService = PostService(database)
+    val postService = PostService()
     val postsController = PostsController(postService)
 
-    val jobTitleService = JobTitleService(database)
+    val jobTitleService = JobTitleService()
     val jobTitleController = JobTitleController(jobTitleService)
 
-    val jobService = JobService(database)
+    val jobService = JobService()
     val jobController = JobController(jobService, jobTitleService)
 
     val tokenService = TokenService()
-    val userService = UserService(database)
+    val userService = UserService()
     val authenticationController = AuthenticationController(userService, tokenService)
 
+    val database = AppDatabase
+    database.getDataBase()
 
     configureAuthentication(tokenService)
     configureSerialization()
     configureMonitoring()
     configureErrorsException()
-    configureRouting(postsController, jobController, jobTitleController, authenticationController)
+    configureRouting(postsController, jobController, jobTitleController, authenticationController, database)
 }

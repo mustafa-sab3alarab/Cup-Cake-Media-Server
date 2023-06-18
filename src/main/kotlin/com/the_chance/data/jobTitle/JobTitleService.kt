@@ -2,17 +2,12 @@ package com.the_chance.data.jobTitle
 
 
 import com.the_chance.data.utils.dbQuery
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 
 
-class JobTitleService(database: Database) {
-
-    init {
-        transaction(database) {
-            SchemaUtils.create(JobTitleTable)
-        }
-    }
+class JobTitleService {
 
     suspend fun getAllJobTitle(): List<JobTitle> = dbQuery {
         JobTitleTable.selectAll().map { jobTitle ->

@@ -2,6 +2,7 @@ package com.the_chance.plugins
 
 
 import com.the_chance.controllers.*
+import com.the_chance.data.AppDatabase
 import com.the_chance.endpoints.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
@@ -11,7 +12,8 @@ fun Application.configureRouting(
     postsController: PostsController,
     jobController: JobController,
     jobTitleController: JobTitleController,
-    authenticationController: AuthenticationController
+    authenticationController: AuthenticationController,
+    database : AppDatabase
 ) {
     routing {
         swaggerUI(path = "swagger")
@@ -19,5 +21,6 @@ fun Application.configureRouting(
         jobTitleRoute(jobTitleController)
         jobRoutes(jobController)
         authentication(authenticationController)
+        adminRoute(database)
     }
 }

@@ -9,9 +9,10 @@ import com.the_chance.utils.NoPostFoundError
 
 
 class PostsController(private val postService: PostService) {
-    suspend fun createPost(content: String?): Post {
+    suspend fun createPost(creatorId: String?, content: String?) {
         if (isValidContent(content)) {
-            return postService.createPost(content!!)
+            val creatorUUID = isValidUUID(creatorId)
+            postService.createPost(creatorUUID, content!!)
         } else {
             throw InValidContentError()
         }
