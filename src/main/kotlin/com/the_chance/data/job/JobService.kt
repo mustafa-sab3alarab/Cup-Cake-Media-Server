@@ -4,11 +4,8 @@ import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.utils.dbQuery
 import com.the_chance.utils.DeleteError
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import java.util.*
 
 class JobService {
