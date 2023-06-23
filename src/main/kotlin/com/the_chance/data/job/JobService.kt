@@ -24,6 +24,7 @@ class JobService {
             it[this.maxSalary] = job.jobSalary.maxSalary
             it[this.experience] = job.experience
             it[this.education] = job.education
+            it[this.skills] = job.skills
         }
     }
 
