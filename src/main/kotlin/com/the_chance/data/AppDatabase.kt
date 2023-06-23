@@ -1,8 +1,11 @@
 package com.the_chance.data
 
+import com.the_chance.data.comment.CommentTable
+import com.the_chance.data.image.ImageTable
 import com.the_chance.data.job.JobTable
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.post.PostTable
+import com.the_chance.data.profle.ProfileTable
 import com.the_chance.data.user.UserTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -10,7 +13,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object AppDatabase {
 
-    private val tables = arrayOf(JobTable, JobTitleTable, PostTable, UserTable)
+    private val tables by lazy {
+        arrayOf(
+            ImageTable,
+            JobTable,
+            JobTitleTable,
+            PostTable,
+            UserTable,
+            ProfileTable,
+            CommentTable
+        )
+    }
 
     init {
         createTables()

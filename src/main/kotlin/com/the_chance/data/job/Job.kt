@@ -9,7 +9,7 @@ data class Job(
     val creatorId: String,
     val jobTitle: JobTitle,
     val company: String,
-    val createdAt: Long = 0L,
+    val createdAt: String = "",
     val workType: String,
     val jobLocation: String,
     val jobType: String,
@@ -17,6 +17,7 @@ data class Job(
     val jobSalary: JobSalary,
     val experience: String,
     val education: String,
+    val skills : String
 )
 
 @Serializable

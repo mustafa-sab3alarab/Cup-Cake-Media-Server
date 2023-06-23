@@ -2,21 +2,23 @@ package com.the_chance.data.job
 
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.user.UserTable
+import com.the_chance.utils.*
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.javatime.timestamp
-import java.time.Instant
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
+import org.jetbrains.exposed.sql.javatime.datetime
 
 object JobTable : UUIDTable() {
-    val jobTitleId = reference("jobTitleId", JobTitleTable.id)
-    val creatorId = reference("creatorId", UserTable.id)
-    val company = text("company")
-    val createdAt = timestamp("createdAt").clientDefault { Instant.now() }
-    val workType = text("workType")
-    val jobLocation = text("jobLocation")
-    val jobType = text("jobType")
-    val jobDescription = text("jobDescription")
-    val minSalary = double("minSalary")
-    val maxSalary = double("maxSalary")
-    val experience = text("experience")
-    val education = text("education")
+    val jobTitleId = reference(JOB_TITLE_ID, JobTitleTable.id)
+    val creatorId = reference(USER_ID, UserTable.id)
+    val company = text(COMPANY)
+    val createdAt = datetime(CREATE_AT).defaultExpression(CurrentDateTime)
+    val workType = text(WORK_TYPE)
+    val jobLocation = text(JOB_LOCATION)
+    val jobType = text(JOB_TYPE)
+    val jobDescription = text(JOB_DESCRIPTION)
+    val minSalary = double(MIN_SALARY)
+    val maxSalary = double(MAX_SALARY)
+    val experience = text(EXPERIENCE)
+    val education = text(EDUCATION)
+    val skills = text(SKILLS)
 }

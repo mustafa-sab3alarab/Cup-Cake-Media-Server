@@ -13,35 +13,33 @@ import java.lang.Exception
 
 fun Routing.jobTitleRoute(jobTitleController: JobTitleController) {
 
-    authenticate("auth-jwt") {
 
-        get("/jobTitles") {
-            tryQuery {
-                val jobTitles = jobTitleController.getAllJobTitles()
-                call.respond(HttpStatusCode.OK, ServerResponse.success(jobTitles))
-            }
+    get("/jobTitles") {
+        tryQuery {
+            val jobTitles = jobTitleController.getAllJobTitles()
+            call.respond(HttpStatusCode.OK, ServerResponse.success(jobTitles))
         }
+    }
 
-        //todo this end point is a temporary solution and should be removed in the future
-        post("/jobTitle") {
-            try {
-                val jobTitle = call.receiveParameters()["jobTitle"]?.trim()
+    //todo this end point is a temporary solution and should be removed in the future
+    post("/jobTitle") {
+        try {
+            val jobTitle = call.receiveParameters()["jobTitle"]?.trim()
 
-                if (jobTitle.isNullOrEmpty().not()) {
-                    val createdJobTitle = jobTitleController.createJobTitle(jobTitle!!)
+            if (jobTitle.isNullOrEmpty().not()) {
+                val createdJobTitle = jobTitleController.createJobTitle(jobTitle!!)
 
-                    call.respond(
-                            HttpStatusCode.Created,
-                            ServerResponse.success(createdJobTitle, successMessage = "Post created successfully")
-                    )
+                call.respond(
+                    HttpStatusCode.Created,
+                    ServerResponse.success(createdJobTitle, successMessage = "JobTitle created successfully")
+                )
 
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Content should not be empty"))
-                }
-
-            } catch (e: Exception) {
+            } else {
                 call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Content should not be empty"))
             }
+
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, ServerResponse.error("Content should not be empty"))
         }
     }
 }

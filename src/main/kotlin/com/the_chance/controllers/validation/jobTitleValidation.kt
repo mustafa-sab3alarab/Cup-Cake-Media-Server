@@ -1,3 +1,7 @@
 package com.the_chance.controllers.validation
 
-fun isJobTitleValid(jobTitle: Int): Boolean = jobTitle != -1
+import com.the_chance.utils.InValidJobTitleIdError
+
+fun isJobTitleValid(jobTitle: Int) {
+    if (jobTitle == -1) throw InValidJobTitleIdError
+}

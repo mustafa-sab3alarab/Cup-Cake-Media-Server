@@ -9,9 +9,10 @@ fun User.toUserWithToken(token: Token): UserWithToken {
         id = id,
         username = username,
         fullName = fullName,
-        phoneNumber = phoneNumber,
+        email = email,
         isActive = isActive,
         createdAt = createdAt,
-        token = token
+        token = token,
+        profile = profile
     )
 }

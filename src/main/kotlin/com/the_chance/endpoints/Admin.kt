@@ -1,19 +1,18 @@
 package com.the_chance.endpoints
 
-import com.the_chance.data.AppDatabase
+import com.the_chance.controllers.AdminController
+import com.the_chance.data.utils.ServerResponse
+import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 
-fun Routing.adminRoute(database: AppDatabase) {
-    authenticate("auth-jwt") {
-        route("/admin/controller") {
-            delete("dropTables") {
-                database.dropTables()
-                call.respondText { "Done ):" }
-            }
+fun Routing.adminRoute(adminController: AdminController) {
+    route("/admin/controller") {
+        delete("dropTables") {
+            adminController.dropTables()
+            call.respond(HttpStatusCode.OK, ServerResponse.success(Unit, successMessage = "Done"))
         }
     }
 }

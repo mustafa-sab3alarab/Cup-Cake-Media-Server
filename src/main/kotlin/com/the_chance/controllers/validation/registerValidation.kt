@@ -6,5 +6,6 @@ fun registerValidateField(user: RegisterRequest) {
     validateUserRequest(user)
     usernameValidation(user.username)
     passwordValidation(user.password)
-    isValidPhoneNumber(user.phoneNumber)
+    isEmailValid(user.email)
+    isJobTitleValid(user.jobTitleId)
 }

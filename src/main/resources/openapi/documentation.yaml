@@ -6,72 +6,21 @@ info:
 servers:
 - url: "https://com_the_chance_cup_cake_media"
 paths:
-  /job:
-    post:
+  /admin/controller/dropTables:
+    delete:
       description: ""
-      parameters:
-      - name: "jobTitleId"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "company"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "workType"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "jobLocation"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "jobType"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "jobDescription"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "jobSalary"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
       responses:
-        "201":
-          description: "Created"
+        "200":
+          description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Job"
-  /job/{id}:
+                $ref: "#/components/schemas/Unit"
+  /comment/{contentId}:
     delete:
       description: ""
       parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "202":
-          description: "Accepted"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-    get:
-      description: ""
-      parameters:
-      - name: "id"
+      - name: "contentId"
         in: "path"
         required: true
         schema:
@@ -82,7 +31,27 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Job"
+                type: "boolean"
+    put:
+      description: ""
+      parameters:
+      - name: "contentId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "content"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Comment"
   /jobTitle:
     post:
       description: "todo this end point is a temporary solution and should be removed\
@@ -118,43 +87,25 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/JobTitle"
-  /jobs:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/JobWithJobTitle"
   /login:
     get:
       description: ""
-      parameters:
-      - name: "username"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "password"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Token"
-  /post:
+                $ref: "#/components/schemas/UserWithToken"
+  /post/{postId}/comment:
     post:
       description: ""
       parameters:
+      - name: "postId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       - name: "content"
         in: "query"
         required: false
@@ -166,8 +117,95 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Post"
-  /post/{postId}:
+                type: "boolean"
+  /post/{postId}/comments:
+    get:
+      description: ""
+      parameters:
+      - name: "postId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Comment"
+  /public/images/{fileName}:
+    get:
+      description: ""
+      parameters:
+      - name: "fileName"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK <br> A file response"
+          content:
+            application/*:
+              schema:
+                type: "object"
+                format: "binary"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /public/job/{id}:
+    get:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Job"
+  /public/jobs:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Job"
+  /public/jobs/popular:
+    get:
+      description: ""
+      parameters:
+      - name: "limit"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Job"
+  /public/post/{postId}:
     get:
       description: ""
       parameters:
@@ -183,7 +221,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Post"
-  /posts:
+  /public/posts:
     get:
       description: ""
       responses:
@@ -209,12 +247,17 @@ paths:
         required: false
         schema:
           type: "string"
-      - name: "phoneNumber"
+      - name: "email"
         in: "query"
         required: false
         schema:
           type: "string"
       - name: "password"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "jobTitleId"
         in: "query"
         required: false
         schema:
@@ -226,6 +269,141 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/UserWithToken"
+  /user/job:
+    post:
+      description: ""
+      parameters:
+      - name: "jobTitleId"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "company"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "workType"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "jobLocation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "jobType"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "jobDescription"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "minSalary"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "maxSalary"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "experience"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "education"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "skills"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /user/job/{id}:
+    delete:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "202":
+          description: "Accepted"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /user/jobs:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Job"
+  /user/post:
+    post:
+      description: ""
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /user/post/{id}:
+    delete:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "202":
+          description: "Accepted"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /user/post/id:
+    put:
+      description: ""
+  /user/posts:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Post"
   /json/kotlinx-serialization:
     get:
       description: ""
@@ -238,30 +416,36 @@ paths:
                 type: "string"
 components:
   schemas:
-    Job:
+    Unit:
+      type: "object"
+      properties: {}
+    Author:
       type: "object"
       properties:
         id:
           type: "string"
-        jobTitleId:
+        name:
+          type: "string"
+        jobTitle:
+          type: "string"
+        avtar:
+          type: "string"
+    Comment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        postId:
+          type: "string"
+        totalLike:
           type: "integer"
           format: "int32"
-        company:
+        author:
+          $ref: "#/components/schemas/Author"
+        content:
           type: "string"
-        createdAt:
-          type: "integer"
-          format: "int64"
-        workType:
+        createAt:
           type: "string"
-        jobLocation:
-          type: "string"
-        jobType:
-          type: "string"
-        jobDescription:
-          type: "string"
-        jobSalary:
-          type: "number"
-          format: "double"
     JobTitle:
       type: "object"
       properties:
@@ -270,45 +454,27 @@ components:
           format: "int32"
         title:
           type: "string"
-    JobWithJobTitle:
+    Profile:
       type: "object"
       properties:
         id:
           type: "string"
+        bio:
+          type: "string"
+        avatar:
+          type: "string"
+        linkWebsite:
+          type: "string"
+        location:
+          type: "string"
         jobTitle:
           $ref: "#/components/schemas/JobTitle"
-        company:
-          type: "string"
-        createdAt:
-          type: "integer"
-          format: "int64"
-        workType:
-          type: "string"
-        jobLocation:
-          type: "string"
-        jobType:
-          type: "string"
-        jobDescription:
-          type: "string"
-        jobSalary:
-          type: "number"
-          format: "double"
     Token:
       type: "object"
       properties:
         token:
           type: "string"
         expireTime:
-          type: "integer"
-          format: "int64"
-    Post:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-        content:
-          type: "string"
-        createdAt:
           type: "integer"
           format: "int64"
     UserWithToken:
@@ -320,10 +486,69 @@ components:
           type: "string"
         fullName:
           type: "string"
-        phoneNumber:
+        email:
           type: "string"
-        createdAt:
-          type: "integer"
-          format: "int64"
+        profile:
+          $ref: "#/components/schemas/Profile"
         token:
           $ref: "#/components/schemas/Token"
+        createdAt:
+          type: "string"
+    JobSalary:
+      type: "object"
+      properties:
+        minSalary:
+          type: "number"
+          format: "double"
+        maxSalary:
+          type: "number"
+          format: "double"
+    Job:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        creatorId:
+          type: "string"
+        jobTitle:
+          $ref: "#/components/schemas/JobTitle"
+        company:
+          type: "string"
+        createdAt:
+          type: "string"
+        workType:
+          type: "string"
+        jobLocation:
+          type: "string"
+        jobType:
+          type: "string"
+        jobDescription:
+          type: "string"
+        jobSalary:
+          $ref: "#/components/schemas/JobSalary"
+        experience:
+          type: "string"
+        education:
+          type: "string"
+        skills:
+          type: "string"
+    Image:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        imageUrl:
+          type: "string"
+    Post:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        author:
+          $ref: "#/components/schemas/Author"
+        content:
+          type: "string"
+        image:
+          $ref: "#/components/schemas/Image"
+        createdAt:
+          type: "string"

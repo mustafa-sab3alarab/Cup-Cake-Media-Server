@@ -32,31 +32,15 @@ class JobService {
             (JobTable innerJoin JobTitleTable)
                 .slice(JobTable.columns + JobTitleTable.columns)
                 .select { JobTable.creatorId eq userId }
-                .map { mapJobFromResultRow(it) }
+                .orderBy(JobTable.createdAt to SortOrder.DESC)
+                .map { it.toJob() }
         }
     }
 
 
-    suspend fun getRecommendedJobs(userUUID: UUID, limit: Int): List<Job> {
-        // TODO(" we should have job title in user table)
-        // we can get user job title from payload
-        return dbQuery { emptyList() }
-    }
-
-    suspend fun getTopSalaryJobsInLocation(userUUID: UUID, limit: Int): List<Job> {
-        // TODO(" we should have user location)
-        return dbQuery { emptyList() }
-    }
-
-    suspend fun getJobsInLocation(userUUID: UUID, limit: Int): List<Job> {
-        // TODO(" we should have user location)
-        return dbQuery { emptyList() }
-    }
-
     suspend fun deleteJob(jobId: UUID) {
         return dbQuery {
             val deleteResult = JobTable.deleteWhere { (JobTable.id eq jobId) }
-            println("Mustafa $deleteResult")
             if (deleteResult != 1) {
                 throw DeleteError()
             }
@@ -80,7 +64,7 @@ class JobService {
                         ),
                         creatorId = job[JobTable.creatorId].value.toString(),
                         company = job[JobTable.company],
-                        createdAt = job[JobTable.createdAt].toEpochMilli(),
+                        createdAt = job[JobTable.createdAt].toString(),
                         workType = job[JobTable.workType],
                         jobLocation = job[JobTable.jobLocation],
                         jobType = job[JobTable.jobType],
@@ -91,6 +75,7 @@ class JobService {
                         ),
                         education = job[JobTable.education],
                         experience = job[JobTable.experience],
+                        skills = job[JobTable.skills]
                     )
                 }
         }
@@ -101,7 +86,8 @@ class JobService {
             (JobTable innerJoin JobTitleTable)
                 .slice(JobTable.columns + JobTitleTable.columns)
                 .selectAll()
-                .map { mapJobFromResultRow(it) }
+                .orderBy(JobTable.createdAt to SortOrder.DESC)
+                .map { it.toJob() }
         }
     }
 
@@ -111,33 +97,34 @@ class JobService {
                 .slice(JobTable.columns + JobTitleTable.columns)
                 .select { JobTitleTable.title.isNotNull() }
                 .take(limit)
-                .map { mapJobFromResultRow(it) }
+                .map { it.toJob() }
         }
     }
 
     //endregion
 
 
-    private fun mapJobFromResultRow(row: ResultRow): Job {
+    private fun ResultRow.toJob(): Job {
         return Job(
-            id = row[JobTable.id].value.toString(),
+            id = this[JobTable.id].value.toString(),
             jobTitle = JobTitle(
-                id = row[JobTitleTable.id].value,
-                title = row[JobTitleTable.title]
+                id = this[JobTitleTable.id].value,
+                title = this[JobTitleTable.title]
             ),
-            creatorId = row[JobTable.creatorId].value.toString(),
-            company = row[JobTable.company],
-            createdAt = row[JobTable.createdAt].toEpochMilli(),
-            workType = row[JobTable.workType],
-            jobLocation = row[JobTable.jobLocation],
-            jobType = row[JobTable.jobType],
-            jobDescription = row[JobTable.jobDescription],
+            creatorId = this[JobTable.creatorId].value.toString(),
+            company = this[JobTable.company],
+            createdAt = this[JobTable.createdAt].toString(),
+            workType = this[JobTable.workType],
+            jobLocation = this[JobTable.jobLocation],
+            jobType = this[JobTable.jobType],
+            jobDescription = this[JobTable.jobDescription],
             jobSalary = JobSalary(
-                minSalary = row[JobTable.minSalary],
-                maxSalary = row[JobTable.maxSalary]
+                minSalary = this[JobTable.minSalary],
+                maxSalary = this[JobTable.maxSalary]
             ),
-            education = row[JobTable.education],
-            experience = row[JobTable.experience]
+            education = this[JobTable.education],
+            experience = this[JobTable.experience],
+            skills = this[JobTable.skills]
         )
     }
 

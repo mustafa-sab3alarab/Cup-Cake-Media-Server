@@ -6,7 +6,7 @@ import com.the_chance.data.job.JobSalary
 import com.the_chance.data.jobTitle.JobTitle
 import com.the_chance.data.utils.ServerResponse
 import com.the_chance.endpoints.utils.tryQuery
-import com.the_chance.utils.ID
+import com.the_chance.utils.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -29,16 +29,17 @@ fun Routing.jobRoutes(jobController: JobController) {
                         val userId = principal?.subject
 
                         val params = call.receiveParameters()
-                        val jobTitleId = params["jobTitleId"]?.trim()?.toIntOrNull() ?: -1
-                        val company = params["company"]?.trim().orEmpty()
-                        val workType = params["workType"]?.trim().orEmpty()
-                        val jobLocation = params["jobLocation"]?.trim().orEmpty()
-                        val jobType = params["jobType"]?.trim().orEmpty()
-                        val jobDescription = params["jobDescription"]?.trim().orEmpty()
-                        val minSalary = params["minSalary"]?.trim()?.toDoubleOrNull() ?: -1.0
-                        val maxSalary = params["maxSalary"]?.trim()?.toDoubleOrNull() ?: -1.0
-                        val experience = params["experience"]?.trim().orEmpty()
-                        val education = params["education"]?.trim().orEmpty()
+                        val jobTitleId = params[JOB_TITLE_ID]?.trim()?.toIntOrNull() ?: -1
+                        val company = params[COMPANY]?.trim().orEmpty()
+                        val workType = params[WORK_TYPE]?.trim().orEmpty()
+                        val jobLocation = params[JOB_LOCATION]?.trim().orEmpty()
+                        val jobType = params[JOB_TYPE]?.trim().orEmpty()
+                        val jobDescription = params[JOB_DESCRIPTION]?.trim().orEmpty()
+                        val minSalary = params[MIN_SALARY]?.trim()?.toDoubleOrNull() ?: -1.0
+                        val maxSalary = params[MAX_SALARY]?.trim()?.toDoubleOrNull() ?: -1.0
+                        val experience = params[EXPERIENCE]?.trim().orEmpty()
+                        val education = params[EDUCATION]?.trim().orEmpty()
+                        val skills = params[SKILLS]?.trim().orEmpty()
 
                         jobController.createJob(
                             Job(
@@ -51,13 +52,14 @@ fun Routing.jobRoutes(jobController: JobController) {
                                 jobDescription = jobDescription,
                                 jobSalary = JobSalary(minSalary, maxSalary),
                                 experience = experience,
-                                education = education
+                                education = education,
+                                skills = skills
                             )
                         )
 
                         call.respond(
                             HttpStatusCode.Created,
-                            ServerResponse.success("Job created successfully")
+                            ServerResponse.success(Unit, "Job created successfully")
                         )
                     }
                 }
@@ -87,38 +89,6 @@ fun Routing.jobRoutes(jobController: JobController) {
                     }
                 }
 
-                get("/recommended") {
-                    tryQuery {
-                        val principal = call.principal<JWTPrincipal>()
-                        val userId = principal?.subject
-
-                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-                        val recommendedJobs = jobController.getRecommendedJobs(userId,limit)
-                        call.respond(HttpStatusCode.OK, ServerResponse.success(recommendedJobs))
-                    }
-                }
-
-                get("/topSalary") {
-                    tryQuery {
-                        val principal = call.principal<JWTPrincipal>()
-                        val userId = principal?.subject
-
-                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-                        val topSalaryJobsInLocation = jobController.getTopSalaryJobsInLocation(userId,limit)
-                        call.respond(HttpStatusCode.OK, ServerResponse.success(topSalaryJobsInLocation))
-                    }
-                }
-
-                get("/location") {
-                    tryQuery {
-                        val principal = call.principal<JWTPrincipal>()
-                        val userId = principal?.subject
-
-                        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-                        val jobsInLocation = jobController.getJobsInLocation(userId,limit)
-                        call.respond(HttpStatusCode.OK, ServerResponse.success(jobsInLocation))
-                    }
-                }
 
             }
 

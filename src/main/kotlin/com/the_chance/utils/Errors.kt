@@ -1,13 +1,13 @@
 package com.the_chance.utils
 
 
-class InValidContentError: Throwable()
+object InValidContentError: Throwable()
 
 class NoPostFoundError: Throwable()
 
 class InValidIdError: Throwable()
 
-class InValidJobTitleIdError: Throwable()
+object InValidJobTitleIdError: Throwable()
 
 class NoJobTitleFoundError: Throwable()
 
@@ -39,13 +39,21 @@ class UserNameExistError : Throwable()
 //endregion
 
 class FullNameIsRequiredError : Throwable()
-class PhoneNumberIsRequiredError : Throwable()
-class InValidPhoneNumber : Throwable()
+class EmailIsRequiredError : Throwable()
+class InValidEmail : Throwable()
 
-class PhoneNumberExistError : Throwable()
+class EmailExistError : Throwable()
 class NoJobTitleFoundRegisterError(): Throwable()
 //endregion
 
 class LoginFailureError : Throwable()
 
 object Unauthorized : Throwable()
+object CommentNotFoundError : Throwable()
+object NotUpdateCommentError : Throwable()
+object UserNotFoundError : Throwable()
+
+object IllegalImage : Throwable()
+object FailedImageDeleteError : Throwable()
+object FileNotExistError : Throwable()
+object InValidBaseAuthorizationHeader : Throwable()

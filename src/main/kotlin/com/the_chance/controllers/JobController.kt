@@ -15,7 +15,7 @@ class JobController(private val jobService: JobService, private val jobTitleServ
     // region user job
     suspend fun createJob(job: Job) {
         val userUUID = isValidUUID(job.creatorId)
-        checkJobTitleValidation(job.jobTitle.id)
+        isJobTitleValid(job.jobTitle.id)
         isJobTitleExist(job.jobTitle.id)
         checkJobFieldsValidation(job)
         checkSalaryValidation(job.jobSalary)
@@ -25,22 +25,6 @@ class JobController(private val jobService: JobService, private val jobTitleServ
     suspend fun getAllUserJobs(userId: String?): List<Job> {
         val userUUId = isValidUUID(userId)
         return jobService.getAllUserJobs(userUUId)
-    }
-
-    suspend fun getRecommendedJobs(userId: String?, limit: Int): List<Job> {
-        val userUUID = isValidUUID(userId)
-        return jobService.getRecommendedJobs(userUUID, limit)
-    }
-
-
-    suspend fun getTopSalaryJobsInLocation(userId: String?, limit: Int): List<Job> {
-        val userUUID = isValidUUID(userId)
-        return jobService.getTopSalaryJobsInLocation(userUUID, limit)
-    }
-
-    suspend fun getJobsInLocation(userId: String?, limit: Int): List<Job> {
-        val userUUID = isValidUUID(userId)
-        return jobService.getJobsInLocation(userUUID, limit)
     }
 
     suspend fun deleteJob(userId: String?, jobId: String?) {
@@ -72,9 +56,6 @@ class JobController(private val jobService: JobService, private val jobTitleServ
     //endregion
 
     //region checking
-    private fun checkJobTitleValidation(jobTitleId: Int): Boolean {
-        return if (isJobTitleValid(jobTitleId)) true else throw InValidJobTitleIdError()
-    }
 
     private suspend fun isJobTitleExist(jobTitleId: Int): Boolean {
         return if (jobTitleService.checkIfJobTitleExist(jobTitleId)) true else throw NoJobTitleFoundError()

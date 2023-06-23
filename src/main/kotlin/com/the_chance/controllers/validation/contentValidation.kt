@@ -1,3 +1,7 @@
 package com.the_chance.controllers.validation
 
-fun isValidContent(content: String?): Boolean = content.isNullOrEmpty().not()
+import com.the_chance.utils.InValidContentError
+
+fun isValidContent(content: String?) {
+    if (content.isNullOrEmpty()) throw InValidContentError
+}

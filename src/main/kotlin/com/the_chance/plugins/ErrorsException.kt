@@ -1,6 +1,8 @@
 package com.the_chance.plugins
 
 import com.the_chance.utils.errors.auth.authErrorsException
+import com.the_chance.utils.errors.genericErrorsException
+import com.the_chance.utils.errors.image.imageErrorsException
 import com.the_chance.utils.errors.login.loginErrorsException
 import com.the_chance.utils.errors.register.registerErrorsException
 import io.ktor.server.application.*
@@ -14,7 +16,8 @@ fun Application.configureErrorsException() {
         authErrorsException()
         loginErrorsException()
         registerErrorsException()
-
+        imageErrorsException()
+        genericErrorsException()
     }
 
 }

@@ -45,22 +45,26 @@ fun StatusPagesConfig.registerErrorsException(){
     //endregion
 
 
-    //region PhoneNumber
-    exception<PhoneNumberIsRequiredError> { call, _ ->
-        call.badRequest("Phone number is required.")
+    //region Email
+    exception<EmailIsRequiredError> { call, _ ->
+        call.badRequest("Email is required.")
     }
 
-    exception<PhoneNumberExistError> { call, _ ->
-        call.badRequest("Phone number already exists.")
+    exception<EmailExistError> { call, _ ->
+        call.badRequest("Email already exists.")
     }
 
-    exception<InValidPhoneNumber> { call, _ ->
-        call.badRequest("Phone Number not valid")
+    exception<InValidEmail> { call, _ ->
+        call.badRequest("Email not valid")
     }
     //endregion
 
     exception<FullNameIsRequiredError> { call, _ ->
         call.badRequest("Full name is required.")
+    }
+
+    exception<InValidJobTitleIdError> { call, _ ->
+        call.badRequest("Invalid job title ID.")
     }
 
 }
