@@ -71,7 +71,7 @@ fun Routing.jobRoutes(jobController: JobController) {
 
                         val jobId = call.parameters[ID]?.trim()
                         jobController.deleteJob(userId, jobId)
-                        call.respond(HttpStatusCode.Accepted, ServerResponse.success("Job deleted successfully"))
+                        call.respond(HttpStatusCode.Accepted, ServerResponse.success(Unit,"Job deleted successfully"))
                     }
                 }
 

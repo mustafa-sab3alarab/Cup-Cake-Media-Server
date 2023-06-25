@@ -43,3 +43,15 @@ const val COLON: String = ":"
 
 
 const val DEFAULT_AVATAR_USER: String = "https://static.vecteezy.com/system/resources/previews/000/439/863/original/vector-users-icon.jpg"
+
+const val DEGREE: String = "degree"
+const val SCHOOL: String = "school"
+const val CITY: String = "city"
+const val SKILL: String = "skill"
+const val START_DATE: String = "startDate"
+const val END_DATE: String = "endDate"
+const val EDUCATION_ID: String = "educationId"
+const val SKILL_ID: String = "skillId"
+
+const val POSITION: String = "position"
+

@@ -15,6 +15,7 @@ fun Application.configureRouting(
     authenticationController: AuthenticationController,
     adminController: AdminController,
     commentController: CommentController,
+    profileController: ProfileController
 ) {
     routing {
         swaggerUI(path = "swagger")
@@ -26,5 +27,6 @@ fun Application.configureRouting(
         imagesRoutes()
         adminRoute(adminController)
         commentRoute(commentController)
+        profileRoutes(profileController)
     }
 }

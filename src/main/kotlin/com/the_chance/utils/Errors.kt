@@ -57,3 +57,6 @@ object IllegalImage : Throwable()
 object FailedImageDeleteError : Throwable()
 object FileNotExistError : Throwable()
 object InValidBaseAuthorizationHeader : Throwable()
+
+object EducationFieldsError : Throwable()
+object SkillFieldsError : Throwable()

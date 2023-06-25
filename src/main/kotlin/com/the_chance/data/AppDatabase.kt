@@ -6,6 +6,9 @@ import com.the_chance.data.job.JobTable
 import com.the_chance.data.jobTitle.JobTitleTable
 import com.the_chance.data.post.PostTable
 import com.the_chance.data.profle.ProfileTable
+import com.the_chance.data.profle.education.EducationTable
+import com.the_chance.data.profle.employment.EmploymentTable
+import com.the_chance.data.profle.skills.SkillsTable
 import com.the_chance.data.user.UserTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -21,7 +24,10 @@ object AppDatabase {
             PostTable,
             UserTable,
             ProfileTable,
-            CommentTable
+            CommentTable,
+            EducationTable,
+            SkillsTable,
+            EmploymentTable
         )
     }
 

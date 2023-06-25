@@ -9,6 +9,8 @@ import com.the_chance.data.job.JobService
 import com.the_chance.data.jobTitle.JobTitleService
 import com.the_chance.data.post.PostService
 import com.the_chance.data.profle.ProfileService
+import com.the_chance.data.profle.education.EducationService
+import com.the_chance.data.profle.skills.SkillService
 import com.the_chance.data.user.UserService
 import com.the_chance.plugins.*
 import io.ktor.server.application.*
@@ -21,33 +23,35 @@ fun main() {
 
 fun Application.module() {
 
-    val database = AppDatabase
+    val database by lazy { AppDatabase }
     database.getDataBase()
 
-    val imageService = ImageService()
-    val imageController = ImageController(imageService)
+    val imageService by lazy { ImageService() }
+    val imageController by lazy { ImageController(imageService) }
 
-    val postService = PostService(imageService)
-    val postsController = PostsController(postService)
+    val postService by lazy { PostService(imageService) }
+    val postsController by lazy { PostsController(postService) }
 
-    val jobTitleService = JobTitleService()
-    val jobTitleController = JobTitleController(jobTitleService)
+    val jobTitleService by lazy { JobTitleService() }
+    val jobTitleController by lazy { JobTitleController(jobTitleService) }
 
-    val jobService = JobService()
-    val jobController = JobController(jobService, jobTitleService)
+    val jobService by lazy { JobService() }
+    val jobController by lazy { JobController(jobService, jobTitleService) }
 
-    val profileService = ProfileService(jobTitleService)
-    val tokenService = TokenService()
-    val userService = UserService(profileService)
-    val authenticationController = AuthenticationController(userService, jobTitleService, tokenService)
-
-
+    val profileService by lazy { ProfileService(jobTitleService) }
+    val tokenService by lazy { TokenService() }
+    val userService by lazy { UserService(profileService) }
+    val authenticationController by lazy { AuthenticationController(userService, jobTitleService, tokenService) }
 
 
-    val adminController = AdminController(database)
+    val adminController by lazy { AdminController(database) }
 
-    val commentService = CommentService()
-    val commentController = CommentController(commentService)
+    val commentService by lazy { CommentService() }
+    val commentController by lazy { CommentController(commentService) }
+
+    val educationService by lazy { EducationService() }
+    val skillService by lazy { SkillService() }
+    val profileController by lazy { ProfileController(educationService, skillService) }
 
     configureAuthentication(tokenService)
     configureSerialization()
@@ -60,6 +64,7 @@ fun Application.module() {
         imageController,
         authenticationController,
         adminController,
-        commentController
+        commentController,
+        profileController
     )
 }
