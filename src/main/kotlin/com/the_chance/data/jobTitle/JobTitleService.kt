@@ -1,7 +1,9 @@
 package com.the_chance.data.jobTitle
 
 
+import com.the_chance.data.post.PostTable
 import com.the_chance.data.utils.dbQuery
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -10,25 +12,19 @@ import org.jetbrains.exposed.sql.selectAll
 class JobTitleService {
 
     suspend fun getAllJobTitle(): List<JobTitle> = dbQuery {
-        JobTitleTable.selectAll().map { jobTitle ->
-            JobTitle(
-                jobTitle[JobTitleTable.id].value,
-                jobTitle[JobTitleTable.title],
-            )
-
-        }
+        JobTitleTable.selectAll()
+            .map { jobTitle ->
+                JobTitle(
+                    id = jobTitle[JobTitleTable.id].value,
+                    title = jobTitle[JobTitleTable.title]
+                )
+            }
     }
 
-    //todo this is a temporary solution and should be removed in the future
     suspend fun insertJobTitle(jobTitle: String) = dbQuery {
-        val newJobTitle = JobTitleTable.insert {
+        JobTitleTable.insert {
             it[title] = jobTitle
         }
-
-        JobTitle(
-            id = newJobTitle[JobTitleTable.id].value,
-            title = newJobTitle[JobTitleTable.title]
-        )
     }
 
     suspend fun checkIfJobTitleExist(id: Int): Boolean {
@@ -47,6 +43,12 @@ class JobTitleService {
                     )
                 }
 
+        }
+    }
+
+    suspend fun checkIfJobTitleTableIsEmpty(): Boolean {
+        return dbQuery {
+            JobTitleTable.selectAll().empty()
         }
     }
 

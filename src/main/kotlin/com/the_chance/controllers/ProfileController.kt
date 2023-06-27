@@ -35,6 +35,17 @@ class ProfileController(
         } ?: throw Unauthorized
     }
 
+
+    suspend fun updateEducation(userId: String?, educationId: String?, education: Education): Education {
+        val educationUUID = isValidUUID(educationId)
+        isValidUUID(userId)
+        educationService.getEducationById(educationUUID)?.takeIf {
+            it.userId == userId
+        }?.let {
+            return educationService.updateEducation(educationUUID, education)
+        } ?: throw Unauthorized
+    }
+   
     suspend fun insertSkill(userId: String?, skill: String) {
         skill.takeIf { it.isNotEmpty() }?.let {
             val userUUID = isValidUUID(userId)
@@ -54,6 +65,18 @@ class ProfileController(
         }?.let {
             skillService.deleteSkill(skillUUID)
         } ?: throw Unauthorized
+    }
+
+    suspend fun updateSkill(userId: String?, skillId: String?, skill: String): Skill {
+        val skillUUID = isValidUUID(skillId)
+        isValidUUID(userId)
+        skill.takeIf { it.isNotEmpty() }?.let {
+            skillService.getSkillById(skillUUID)?.takeIf {
+                it.userId == userId
+            }?.let {
+                return skillService.updateSkill(skillUUID, skill)
+            } ?: throw Unauthorized
+        } ?: throw SkillFieldsError
     }
 
     private fun checkIfEducationFieldsNotEmpty(education: Education) {

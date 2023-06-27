@@ -59,4 +59,8 @@ object FileNotExistError : Throwable()
 object InValidBaseAuthorizationHeader : Throwable()
 
 object EducationFieldsError : Throwable()
+
 object SkillFieldsError : Throwable()
+object UpdateEducationError : Throwable()
+object UpdateSkillError : Throwable()
+object JobTitlesAlreadyExist : Throwable()

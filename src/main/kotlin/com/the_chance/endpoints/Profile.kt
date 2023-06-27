@@ -66,6 +66,35 @@ fun Routing.profileRoutes(profileController: ProfileController) {
                 }
             }
 
+            put("/education/{$EDUCATION_ID}") {
+                tryQuery {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.subject
+
+                    val educationId = call.parameters[EDUCATION_ID]
+                    val params = call.receiveParameters()
+                    val degree = params[DEGREE]?.trim().orEmpty()
+                    val school = params[SCHOOL]?.trim().orEmpty()
+                    val city = params[CITY]?.trim().orEmpty()
+                    val startDate = params[START_DATE]?.trim().orEmpty()
+                    val endDate = params[END_DATE]?.trim().orEmpty()
+
+                    val education = Education(
+                        degree = degree,
+                        school = school,
+                        city = city,
+                        date = EducationDate(startDate, endDate)
+                    )
+
+                    val newEducation = profileController.updateEducation(userId, educationId, education)
+                    call.respond(
+                        HttpStatusCode.Accepted,
+                        ServerResponse.success(newEducation, "Education updated successfully")
+                    )
+                }
+
+            }
+
             post("/skill") {
                 tryQuery {
                     val principal = call.principal<JWTPrincipal>()
@@ -99,6 +128,24 @@ fun Routing.profileRoutes(profileController: ProfileController) {
                     HttpStatusCode.Accepted,
                     ServerResponse.success(Unit, "Skill deleted successfully")
                 )
+            }
+
+            put("/skill/{$SKILL_ID}") {
+                tryQuery {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.subject
+
+                    val skillId = call.parameters[SKILL_ID]
+                    val params = call.receiveParameters()
+                    val skill = params[SKILL]?.trim().orEmpty()
+
+                    val newSkill = profileController.updateSkill(userId, skillId, skill)
+                    call.respond(
+                        HttpStatusCode.Accepted,
+                        ServerResponse.success(newSkill, "Skill updated successfully")
+                    )
+                }
+
             }
         }
     }

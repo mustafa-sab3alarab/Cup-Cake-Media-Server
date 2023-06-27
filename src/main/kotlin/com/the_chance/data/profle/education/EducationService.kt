@@ -2,6 +2,7 @@ package com.the_chance.data.profle.education
 
 import com.the_chance.data.utils.dbQuery
 import com.the_chance.utils.DeleteError
+import com.the_chance.utils.UpdateEducationError
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
@@ -58,15 +59,30 @@ class EducationService {
         }
     }
 
-}
 
-private fun ResultRow.toEducation(): Education {
-    return Education(
-        id = this[EducationTable.id].value.toString(),
-        userId = this[EducationTable.userId].value.toString(),
-        degree = this[EducationTable.degree],
-        school = this[EducationTable.school],
-        city = this[EducationTable.city],
-        date = EducationDate(start = this[EducationTable.startDate], end = this[EducationTable.endDate])
-    )
+    suspend fun updateEducation(educationId: UUID, education: Education): Education = dbQuery {
+        EducationTable.update({ EducationTable.id eq educationId }) {
+                it[degree] = education.degree
+                it[school] = education.school
+                it[city] = education.city
+                it[startDate] = education.date.start
+                it[endDate] = education.date.end
+            }
+
+        EducationTable
+            .select { EducationTable.id eq educationId }
+            .singleOrNull()?.toEducation() ?: throw UpdateEducationError
+    }
+
+    private fun ResultRow.toEducation(): Education {
+        return Education(
+            id = this[EducationTable.id].value.toString(),
+            userId = this[EducationTable.userId].value.toString(),
+            degree = this[EducationTable.degree],
+            school = this[EducationTable.school],
+            city = this[EducationTable.city],
+            date = EducationDate(start = this[EducationTable.startDate], end = this[EducationTable.endDate])
+        )
+    }
+
 }

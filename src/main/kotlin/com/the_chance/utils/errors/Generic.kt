@@ -2,6 +2,7 @@ package com.the_chance.utils.errors
 
 import com.the_chance.utils.*
 import io.ktor.server.plugins.statuspages.*
+import java.io.IOException
 
 fun StatusPagesConfig.genericErrorsException() {
 
@@ -23,6 +24,14 @@ fun StatusPagesConfig.genericErrorsException() {
 
     exception<InValidContentError> { call, _ ->
         call.badRequest("Content is required and should not be empty")
+    }
+
+    exception<IOException> { call, _ ->
+        call.badRequest("Invalid convert json file")
+    }
+
+    exception<JobTitlesAlreadyExist> { call, _ ->
+        call.badRequest("Job Titles Already Exist")
     }
 
 
